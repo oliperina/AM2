@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html>
-<head>
+<head>    
+  <link rel="stylesheet" href="script.js" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div class="row">
+      <div class="col">
+        <div class="d-flex justify-content-center">
+          <button type="button" class="btn btn-dark btn-lg" onclick="window.location.href = 'index.html' ">Iniciar Jogo</button>
+        </div>
+      </div>
+    </div>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <style>
 canvas {
@@ -54,14 +65,15 @@ function drawDeath() {
     ctx.font = "Consolas";
     ctx.textAlign = 'center';
     ctx.fillStyle = "#000000";
-    ctx.fillText("VOCÊ PERDEU", 240, 135);
+    ctx.fillText("GAME OVER", 240, 135);
 }
 
 function drawSucess() {
     ctx.font = "Consolas";
     ctx.textAlign = 'center';
     ctx.fillStyle = "#000000";
-    ctx.fillText("VOCÊ PASSOU DE FASE", 240, 135);
+    ctx.fillText("YOU WON!", 260, 135);
+    ctx.fillText("YOU WON!", 260, 135);
 }
 
 function component(width, height, color, x, y, type) {
@@ -71,7 +83,8 @@ function component(width, height, color, x, y, type) {
     this.width = width;
     this.height = height;
     this.speedX = 0;
-    this.speedY = 0;    
+    this.speedY = 0;
+    this.canScore = true;    
     this.x = x;
     this.y = y;    
     this.update = function() {
@@ -113,20 +126,18 @@ function component(width, height, color, x, y, type) {
 
 function updateGameArea() {
     if (isGameOver == false) { var x, height, width, gap, minHeight, maxHeight, minWidth, maxWidth, minGap, maxGap;
-    console.log(myImunidade);
     for (i = 0; i < myObstaculo.length; i += 1) {
+        if (myGameArea.scoreAtual == 100) {
+          isGameOver = true;
+          setInterval(drawSucess, 10) 
+        }
         if (myPersonagem.crashWith(myObstaculo[i])) {
-            console.log(myImunidade);
             myGameArea.scoreAtual -= 1
-            if (myGameArea.scoreAtual == 100) {
-              isGameOver = true;
-              setInterval(drawSucess, 10) 
-            }
-            if (myGameArea.scoreAtual < 0) {
+            if (myGameArea.scoreAtual <= 0) {
               isGameOver = true;
               setInterval(drawDeath, 10) 
             }
-        } 
+          } 
     }
     myGameArea.clear();
     myPersonagem.speedX = 0;
@@ -143,25 +154,19 @@ function updateGameArea() {
 
     if (myGameArea.frameNo == 1 || everyinterval(150)) {
         x = myGameArea.canvas.width;
-        minHeight = 20;
+        minHeight = 10;
         maxHeight = 200;
         height = Math.floor(Math.random()*(maxHeight-minHeight+1)+minHeight);
         height2 = Math.floor(Math.random()*(maxHeight-minHeight+1)+minHeight);
-        minGap = 50;
-        maxGap = 200;
-        gap = Math.floor(Math.random()*(maxGap-minGap+1)+minGap);
-        minWidth = height;
-        maxWidth = height;
-        width = Math.floor(Math.random()*(maxWidth-minWidth+1)+minWidth);
-        minGap = width;
-        maxGap = 200;
-        gap = Math.floor(Math.random()*(maxGap-minGap+1)+minGap);
         myObstaculo.push(new component(20, 20, "blue", x, height));
         myObstaculo.push(new component(20, 20, "blue", x, height2));
     }
     for (i = 0; i < myObstaculo.length; i += 1) {
         myObstaculo[i].x += -1;
-        if (myObstaculo[i].x == 20) myGameArea.scoreAtual += 0.5;
+        if (myObstaculo[i].x > myPersonagem.x-2 && myObstaculo[i].x < myPersonagem.x+2 && myObstaculo[i].canScore) { 
+          myGameArea.scoreAtual += 0.5 
+          myObstaculo[i].canScore = false;
+        }
         myObstaculo[i].update();
     }
     
